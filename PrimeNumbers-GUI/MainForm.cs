@@ -29,6 +29,8 @@ namespace PrimeNumbers_GUI
             startNumTextBox.Enabled = false;
             endNumTextBox.Enabled = false;
 
+            UseWaitCursor = true;
+
             // See which numbers are factors and append them to the numbers text box
             for (int i = firstNum; i <= lastNum; i++)
             {
@@ -54,6 +56,7 @@ namespace PrimeNumbers_GUI
                 numbersTextBox.Text = "None.";
             }
 
+            UseWaitCursor = false;
 
             // Reset the form
             startNumTextBox.Enabled = true;
