@@ -34,9 +34,6 @@ namespace PrimeNumbers_GUI
             // See which numbers are factors and append them to the numbers text box
             for (int i = firstNum; i <= lastNum; i++)
             {
-                // Make the progress bar show the percent we've completed
-                progressBar1.Value = i;
-
                 if (IsPrime(i))
                 {
                     AddNumberToTextBox(i);
@@ -84,6 +81,7 @@ namespace PrimeNumbers_GUI
         private void AddNumberToTextBox(int num)
         {
             numbersTextBox.AppendText(num + "\n");
+            progressBar1.Value = num;
         }
 
         private void pauseButton_Click(object sender, EventArgs e)
