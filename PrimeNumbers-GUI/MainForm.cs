@@ -37,7 +37,7 @@ namespace PrimeNumbers_GUI
 
                 if (IsPrime(i))
                 {
-                    numbersTextBox.AppendText(i + "\n");
+                    AddNumberToTextBox(i);
                 }
 
                 // Leave the loop when the Cancel button has been pressed
@@ -76,6 +76,11 @@ namespace PrimeNumbers_GUI
 
             // No divisors means the number is prime
             return true;
+        }
+
+        private void AddNumberToTextBox(int num)
+        {
+            numbersTextBox.AppendText(num + "\n");
         }
 
         private void pauseButton_Click(object sender, EventArgs e)
