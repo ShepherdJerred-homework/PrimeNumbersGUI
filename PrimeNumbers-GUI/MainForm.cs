@@ -5,8 +5,6 @@ namespace PrimeNumbers_GUI
 {
     public partial class MainForm : Form
     {
-        private bool cancelJob = false;
-
         public MainForm()
         {
             InitializeComponent();
@@ -37,13 +35,6 @@ namespace PrimeNumbers_GUI
                 if (IsPrime(i))
                 {
                     AddNumberToTextBox(i);
-                }
-
-                // Leave the loop when the Cancel button has been pressed
-                // (This won't actually work because the UI thread is tied-up.)
-                if (cancelJob)
-                {
-                    break;
                 }
             }
 
@@ -91,9 +82,7 @@ namespace PrimeNumbers_GUI
 
         private void cancelButton_Click(object sender, EventArgs e)
         {
-            // We'll try to cancel the job, but it's not going to work because the
-            // UI thread is busy running the for loop!
-            cancelJob = true;
+            // Cancel the work done in the for loop
         }
     }
 }
