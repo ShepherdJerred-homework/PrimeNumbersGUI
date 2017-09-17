@@ -1,20 +1,28 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace PrimeNumbers_GUI
-{
-    public partial class MainForm : Form
-    {
-        public MainForm()
-        {
+namespace PrimeNumbers_GUI {
+    public partial class MainForm : Form {
+        private CancellationTokenSource cancellationTokenSource;
+
+        public MainForm() {
             InitializeComponent();
         }
-        
-        private void startButton_Click(object sender, EventArgs e)
-        {
+
+        private async void startButton_Click(object sender, EventArgs e) {
             // Find all prime numbers starting between the first and last numbers
-            int firstNum = Convert.ToInt32(startNumTextBox.Text);
-            int lastNum = Convert.ToInt32(endNumTextBox.Text);
+            int firstNum;
+            int lastNum;
+            try {
+                firstNum = Convert.ToInt32(startNumTextBox.Text);
+                lastNum = Convert.ToInt32(endNumTextBox.Text);
+            } catch (FormatException) {
+                MessageBox.Show("Invalid input", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             numbersTextBox.Clear();
 
@@ -23,24 +31,17 @@ namespace PrimeNumbers_GUI
             progressBar1.Maximum = lastNum;
             progressBar1.Visible = true;
             cancelButton.Enabled = true;
-            pauseButton.Enabled = true;            
+            pauseButton.Enabled = true;
             startNumTextBox.Enabled = false;
             endNumTextBox.Enabled = false;
 
             UseWaitCursor = true;
 
-            // See which numbers are factors and append them to the numbers text box
-            for (int i = firstNum; i <= lastNum; i++)
-            {
-                if (IsPrime(i))
-                {
-                    AddNumberToTextBox(i);
-                }
-            }
+            Task findPrimeTask = FindAndPrintPrimes(firstNum, lastNum);
+            await findPrimeTask;
 
             // Let the user know we did something even if no prime nums were found
-            if (numbersTextBox.TextLength == 0)
-            {
+            if (numbersTextBox.TextLength == 0) {
                 numbersTextBox.Text = "None.";
             }
 
@@ -55,8 +56,22 @@ namespace PrimeNumbers_GUI
             pauseButton.Enabled = false;
         }
 
-        private bool IsPrime(int num)
-        {
+        private async Task FindAndPrintPrimes(int firstNum, int lastNum) {
+            cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken token = cancellationTokenSource.Token;
+            await Task.Run(() => {
+                for (int i = firstNum; i <= lastNum; i++) {
+                    if (token.IsCancellationRequested) {
+                        break;
+                    }
+                    if (IsPrime(i)) {
+                        AddNumberToTextBox(i);
+                    }
+                }
+            });
+        }
+
+        private bool IsPrime(int num) {
             if (num < 2)
                 return false;
 
@@ -69,20 +84,19 @@ namespace PrimeNumbers_GUI
             return true;
         }
 
-        private void AddNumberToTextBox(int num)
-        {
-            numbersTextBox.AppendText(num + "\n");
-            progressBar1.Value = num;
+        private void AddNumberToTextBox(int num) {
+            Invoke((Action) delegate() {
+                numbersTextBox.AppendText(num + "\n");
+                progressBar1.Value = num;
+            });
         }
 
-        private void pauseButton_Click(object sender, EventArgs e)
-        {
-            // Pause or resume the current job 
+        private void pauseButton_Click(object sender, EventArgs e) {
+            cancellationTokenSource.Cancel();
         }
 
-        private void cancelButton_Click(object sender, EventArgs e)
-        {
-            // Cancel the work done in the for loop
+        private void cancelButton_Click(object sender, EventArgs e) {
+            cancellationTokenSource.Cancel();
         }
     }
 }
